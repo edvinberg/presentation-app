@@ -1,13 +1,4 @@
 [
-  {
-    "id": 0,
-    "title": "Intro",
-    "content": [ { "type": "p", "text": "Minimal deck example." } ]
-  },
-  {
-    "id": 1,
-    "title": "Point",
-    "content": [ { "type": "list", "items": ["Concise","Lean","Focused"] } ]
-  }
+  { "id": 0, "title": "Intro", "items": ["Minimal deck example."] },
+  { "id": 1, "title": "Point", "items": ["Concise","Lean","Focused"] }
 ]
-

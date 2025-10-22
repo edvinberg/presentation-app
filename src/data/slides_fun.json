@@ -1,25 +1,5 @@
 [
-  {
-    "id": 0,
-    "title": "Fun Pack 🎲",
-    "rainbowTitle": true,
-    "content": [
-      { "type": "p", "text": "A whimsical variant of the deck." }
-    ]
-  },
-  {
-    "id": 1,
-    "title": "Jokes",
-    "content": [
-      { "type": "list", "items": ["Why did the dev cross the road?","To ship before the sprint ended.","Semicolons: optional, opinions: mandatory."] }
-    ]
-  },
-  {
-    "id": 2,
-    "title": "Emoji Blast 💥",
-    "content": [
-      { "type": "list", "items": ["🚀 Launch fast","🧪 Test early","🔁 Iterate often"] }
-    ]
-  }
+  { "id": 0, "title": "Fun Pack 🎲", "items": ["A whimsical variant of the deck."] },
+  { "id": 1, "title": "Jokes", "items": ["Why did the dev cross the road?","To ship before the sprint ended.","Semicolons: optional, opinions: mandatory."] },
+  { "id": 2, "title": "Emoji Blast 💥", "items": ["🚀 Launch fast","🪪 Test early","🔁 Iterate often"] }
 ]
-

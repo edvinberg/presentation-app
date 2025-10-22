@@ -13,23 +13,13 @@ function App() {
   const deckSources = { default: slidesDefault, fun: slidesFun, minimal: slidesMinimal, ab: slidesAb };
   const rawDeck = deckSources[selectedDeck];
   const slides = useMemo(() => {
-    const renderContent = (entry) => entry.content.map((block, i) => {
-      if (block.type === 'p') return <p key={i}>{block.text}</p>;
-      if (block.type === 'list') return (
-        <ul key={i} className="feature-list">
-          {block.items.map((it, j) => <li key={j}>{it}</li>)}
-        </ul>
-      );
-      return null;
-    });
     return rawDeck.map(raw => ({
       id: raw.id,
       title: raw.title,
       content: (
-        <>
-          {/* Title removed from slide; shown only in the typing input */}
-          {renderContent(raw)}
-        </>
+        <ul className="feature-list">
+          {raw.items.map((it, j) => <li key={j}>{it}</li>)}
+        </ul>
       )
     }));
   }, [rawDeck])
@@ -108,6 +98,32 @@ function App() {
 
   const selectorRef = useRef(null);
   const firstItemRef = useRef(null);
+  const inputRef = useRef(null); // ref for input element
+  const mirrorRef = useRef(null); // hidden mirror span to measure text width
+  const [caretLeft, setCaretLeft] = useState(0); // dynamic caret x position
+
+  const updateCaret = useCallback(() => {
+    if (!inputRef.current || !mirrorRef.current) return;
+    const inputEl = inputRef.current;
+    const containerEl = inputEl.parentElement; // .input-caret-layer
+    const inputStyle = getComputedStyle(inputEl);
+    const containerStyle = containerEl ? getComputedStyle(containerEl) : null;
+    const padLeftInput = parseFloat(inputStyle.paddingLeft) || 0;
+    const padRightInput = parseFloat(inputStyle.paddingRight) || 0;
+    const padLeftContainer = containerStyle ? parseFloat(containerStyle.paddingLeft) || 0 : 0;
+    const innerWidth = inputEl.clientWidth - padLeftInput - padRightInput;
+    let textWidth = mirrorRef.current.offsetWidth;
+    if (textWidth > innerWidth) textWidth = innerWidth; // clamp if overflow
+    // Position caret at container left padding + input left padding + text width
+    setCaretLeft(padLeftContainer + padLeftInput + textWidth);
+  }, []);
+
+  useEffect(() => { updateCaret(); }, [updateCaret, inputValue]);
+  useEffect(() => {
+    const handleResize = () => updateCaret();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateCaret]);
 
   const toggleDeckMenu = () => setDeckOpen(o => !o);
   const selectDeck = (key) => {
@@ -193,13 +209,18 @@ function App() {
         )}
       </div>
       <div className="deck-input-wrapper">
-        <input
-          type="text"
-          value={inputValue}
-          readOnly
-          aria-label="Slide heading typing field"
-          className={isTyping ? 'typing' : ''}
-        />
+        <div className="input-caret-layer">
+          <input
+            ref={inputRef}
+            type="text"
+            value={inputValue}
+            readOnly
+            aria-label="Slide heading typing field"
+            className={isTyping ? 'typing' : ''}
+          />
+          <span ref={mirrorRef} className="input-mirror" aria-hidden="true">{inputValue}</span>
+          <span className="blink-caret" style={{ left: caretLeft }} aria-hidden="true" />
+        </div>
       </div>
       <div className="deck">
         <div className="slides-wrapper">
