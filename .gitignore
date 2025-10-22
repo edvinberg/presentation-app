@@ -29,3 +29,5 @@ coverage/
 # Misc
 *.log
 
+# Local data files to ignore
+src/data/ab.json

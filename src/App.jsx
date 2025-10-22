@@ -4,12 +4,13 @@ import './App.css'
 import slidesDefault from './data/slides.json';
 import slidesFun from './data/slides_fun.json';
 import slidesMinimal from './data/slides_minimal.json';
+import slidesAb from './data/ab.json';
 
 function App() {
   // deck selection state
   const [selectedDeck, setSelectedDeck] = useState('default');
   const [deckOpen, setDeckOpen] = useState(false);
-  const deckSources = { default: slidesDefault, fun: slidesFun, minimal: slidesMinimal };
+  const deckSources = { default: slidesDefault, fun: slidesFun, minimal: slidesMinimal, ab: slidesAb };
   const rawDeck = deckSources[selectedDeck];
   const slides = useMemo(() => {
     const renderContent = (entry) => entry.content.map((block, i) => {
@@ -26,7 +27,7 @@ function App() {
       title: raw.title,
       content: (
         <>
-          {raw.rainbowTitle ? <h1 className="title rainbow">{raw.title}</h1> : <h2 className="title">{raw.title}</h2>}
+          {/* Title removed from slide; shown only in the typing input */}
           {renderContent(raw)}
         </>
       )
@@ -37,7 +38,7 @@ function App() {
   const [pendingIndex, setPendingIndex] = useState(null)
   const [isTyping, setIsTyping] = useState(false)
   const [typedValue, setTypedValue] = useState(slides[0].title)
-  const typingSpeed = 55
+  const typingSpeed = 25 // was 55ms, sped up for faster typing effect
 
   const startTypingFor = useCallback((target) => {
     if (target === current) return;
@@ -165,6 +166,9 @@ function App() {
             </li>
             <li role="none">
               <button role="menuitem" onClick={() => selectDeck('minimal')} className={selectedDeck==='minimal'?'active':''}>Minimal</button>
+            </li>
+              <li role="none">
+              <button role="menuitem" onClick={() => selectDeck('ab')} className={selectedDeck==='ab'?'active':''}>ab</button>
             </li>
           </ul>
         )}
