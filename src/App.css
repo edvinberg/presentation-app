@@ -151,7 +151,7 @@ html, body { height: 100%; margin:0; }
 .deck-input-wrapper {
   position: relative; z-index: 5;
   width: 60%;
-  margin: 0.75rem auto;
+  margin: 4.25rem auto 0.75rem auto; /* large space above container, keep small bottom */
   display: flex;
   flex-direction: column; /* stack input then dots */
 }
