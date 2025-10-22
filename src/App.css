@@ -38,9 +38,8 @@
 /* removed slideIn/slideOut keyframes */
 
 .slide-inner {
-  background: linear-gradient(135deg,#ffeb3b,#2196f3,#ff4081,#7c4dff); /* replaced orange with blue */
-  background-size: 400% 400%;
-  animation: gradientMove 12s ease infinite;
+  background: linear-gradient(135deg,#ff4081 0%, #2196f3 100%); /* smooth two-color gradient */
+  background-size: 200% 200%;
   padding: 3rem clamp(1rem,3vw,2rem);
   border-radius: 24px;
   box-shadow: 0 12px 32px -8px rgba(0,0,0,.35);
@@ -55,14 +54,18 @@
   overflow-y: auto; /* allow scroll if content exceeds fixed height */
   backdrop-filter: blur(2px);
 }
-@keyframes gradientMove {
-  0% { background-position: 0 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0 50%; }
-}
-.title {
+/* New parity variants */
+.slide-inner.even { background-position: 25% 50%; }
+.slide-inner.odd { background-position: 75% 50%; }
+/* Directional half animations (50% traversal) */
+.slide-inner.animate-gradient-right { animation: gradientToRight .5s ease forwards; }
+.slide-inner.animate-gradient-left { animation: gradientToLeft .5s ease forwards; }
+@keyframes gradientToRight { from { background-position: 25% 50%; } to { background-position: 75% 50%; } }
+@keyframes gradientToLeft { from { background-position: 75% 50%; } to { background-position: 25% 50%; } }
+/* Removed old .slide-inner.animate-gradient and @keyframes gradientMove */
+.title { /* thicker heading */
   margin-top: 0;
-  font-weight: 800;
+  font-weight: 700; /* was 600 */
   letter-spacing: .5px;
 }
 .rainbow {
@@ -75,15 +78,15 @@
   0% { filter: hue-rotate(0deg); }
   100% { filter: hue-rotate(360deg); }
 }
-.feature-list {
-  /* center list block without forcing text-center */
-  margin: 0 auto; /* horizontally center the list container */
+.feature-list { /* slightly thicker list */
+  margin: 0 auto;
   text-align: left;
   font-size: 1.25rem;
   line-height: 1.5;
   list-style: "✨  ";
   padding-left: 1.2rem;
-  width: fit-content; /* shrink to content width so visual centering matches other slides */
+  width: fit-content;
+  font-weight: 500; /* new */
 }
 .dots {
   display: flex;
@@ -140,25 +143,28 @@
   margin: 0 auto 0.25rem auto;
   display: flex;
 }
-.deck-input-wrapper input {
+.deck-input-wrapper input { /* thicker input font */
   flex: 1;
   padding: .85rem 1.1rem;
   font-size: 1rem;
-  border-radius: 14px;
+  font-family: 'Quicksand', system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-weight: 600; /* was 500 */
+  letter-spacing: .25px;
+  border-radius: 16px;
   border: 2px solid transparent;
-  background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#ff4081,#2196f3) border-box; /* replaced orange with blue */
+  background: linear-gradient(#fff,#fff) padding-box, linear-gradient(135deg,#ff4081,#2196f3) border-box;
   box-shadow: 0 6px 20px -6px rgba(0,0,0,.35);
   outline: none;
-  /* removed transitions to avoid flicker */
 }
 .deck-input-wrapper input:focus { /* neutralize focus visual changes */
   box-shadow: 0 6px 20px -6px rgba(0,0,0,.35);
   transform: none;
 }
-.deck-input-wrapper input.typing {
-  /* removed pulseType animation for stability */
+.deck-input-wrapper input.typing { /* keep consistent weight */
   caret-color: transparent;
   position: relative;
+  font-weight: 600; /* was 500 */
+  letter-spacing: .25px;
   box-shadow: 0 6px 20px -6px rgba(0,0,0,.35); /* ensure consistency */
 }
 /* remove pulseType keyframes: leaving blinkCaret */

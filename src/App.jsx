@@ -38,7 +38,10 @@ function App() {
   const [pendingIndex, setPendingIndex] = useState(null)
   const [isTyping, setIsTyping] = useState(false)
   const [typedValue, setTypedValue] = useState(slides[0].title)
-  const typingSpeed = 25 // was 55ms, sped up for faster typing effect
+  const typingSpeed = 25; // typing interval in ms
+  // Removed animateBg; using variant + animDirection instead
+  const prevIndexRef = useRef(null);
+  const [animDirection, setAnimDirection] = useState(null);
 
   const startTypingFor = useCallback((target) => {
     if (target === current) return;
@@ -69,6 +72,21 @@ function App() {
       setIsTyping(false);
     }
   }, [isTyping, pendingIndex, typedValue, slides, typingSpeed, current])
+
+  // Determine animation direction based on parity change (only half traverse)
+  useEffect(() => {
+    if (prevIndexRef.current === null) { prevIndexRef.current = current; return; }
+    const prev = prevIndexRef.current;
+    if ((prev % 2) !== (current % 2)) {
+      setAnimDirection(prev % 2 === 0 ? 'right' : 'left');
+      prevIndexRef.current = current; // ensure ref updates even when animating
+      const t = setTimeout(() => setAnimDirection(null), 500); // was 800ms, now 500ms to match faster animation
+      return () => clearTimeout(t);
+    } else {
+      setAnimDirection(null); // same parity, no animation
+      prevIndexRef.current = current;
+    }
+  }, [current]);
 
   useEffect(() => {
     const handler = (e) => {
@@ -150,6 +168,7 @@ function App() {
     setPendingIndex(null);
     setIsTyping(false);
     setTypedValue(slides[0].title);
+    prevIndexRef.current = 0; // reset parity tracking on deck change
   }, [selectedDeck, slides]);
 
   return (
@@ -184,7 +203,7 @@ function App() {
       </div>
       <div className="deck">
         <div className="slides-wrapper">
-          <Slide>{slides[current].content}</Slide>
+          <Slide variant={current % 2 === 0 ? 'even' : 'odd'} animDirection={animDirection}>{slides[current].content}</Slide>
         </div>
         <div className="dots" role="tablist" aria-label="Slide selection">
           {slides.map((s, idx) => (
