@@ -1,25 +1,27 @@
 #root {
-  /* removed max-width to allow full viewport width */
+  /* full viewport coverage */
   width: 100%;
-  margin: 0 auto;
-  padding: 2rem;
+  height: 100vh; /* fill viewport height */
+  margin: 0;
+  padding: 0; /* remove padding so deck can occupy full space */
   text-align: center;
 }
-
+/* Ensure body/html also allow full-height root (add if not present elsewhere) */
+html, body { height: 100%; margin:0; }
 /* --- Presentation deck styling --- */
 .deck {
-  width: 60%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-  min-height: 80vh;
-  justify-content: center;
-  position: relative; /* allow absolutely positioned dots */
+  position: fixed; top:0; left:0;
+  width: 100%; height: 100vh;
+  margin: 0;
+  display: flex; flex-direction: column;
+  justify-content: center; align-items: stretch;
+  gap: 0;
+  z-index: 1; /* behind overlay input & selector */
+  overflow: hidden;
 }
 .slides-wrapper {
   position: relative;
-  min-height: 65vh; /* increased to give slide-inner room */
+  width:100%; height:100%; min-height:100%;
 }
 .slide {
   position: static; /* was absolute */
@@ -28,31 +30,29 @@
   transform: none; /* remove scale/translate */
   transition: none; /* no animated transition */
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
-  will-change: auto; /* reset */
-  pointer-events: auto; /* always interactive */
+  align-items: stretch;
+  justify-content: stretch;
+  padding: 0;
+  height: 100%;
 }
 /* removed .slide.active, .slide.leaving, and direction-based animation rules */
 /* removed slideIn/slideOut keyframes */
 
 .slide-inner {
-  background: linear-gradient(135deg,#ff4081 0%, #2196f3 100%); /* smooth two-color gradient */
-  background-size: 200% 200%;
+  /* full-bleed gradient */
+  width: 100%;
+  height: 100%; /* use container height instead of 100vh to avoid double stacking */
+  margin: 0;
   padding: 3rem clamp(1rem,3vw,2rem);
-  border-radius: 24px;
-  box-shadow: 0 12px 32px -8px rgba(0,0,0,.35);
-  color: #222;
-  width: min(1600px, 90vw); /* responsive width without fixed large minimum */
-  margin: 0 auto;
-  height: clamp(420px,70vh,640px); /* consistent visual height: big and responsive */
+  border-radius: 0; /* remove radius for full coverage */
+  box-shadow: none; /* remove shadow for seamless edge */
   display: flex;
   flex-direction: column;
-  justify-content: center; /* center slide content vertically */
+  justify-content: center;
   box-sizing: border-box;
-  overflow-y: auto; /* allow scroll if content exceeds fixed height */
-  backdrop-filter: blur(2px);
+  overflow-y: auto;
+  background: linear-gradient(135deg,#ff4081 0%, #2196f3 100%);
+  background-size: 200% 200%;
 }
 /* New parity variants */
 .slide-inner.even { background-position: 25% 50%; }
@@ -98,15 +98,17 @@
 }
 .dots {
   display: flex;
-  position: absolute;
-  top: 1rem;
-  right: 1rem; /* was 5.25rem: moved flush to right */
   gap: .4rem;
   padding: .25rem .4rem;
   background: rgba(255,255,255,0.6);
   backdrop-filter: blur(4px);
   border-radius: 999px;
   box-shadow: 0 4px 12px -4px rgba(0,0,0,.25);
+  align-self: flex-end; /* move to right end below input */
+  margin-top: .5rem; /* space below input */
+  position: static; /* no absolute positioning */
+  z-index: 6;
+  margin-right: 1rem; /* new: match input right padding */
 }
 .dot {
   width: 10px;
@@ -147,9 +149,11 @@
 }
 
 .deck-input-wrapper {
+  position: relative; z-index: 5;
   width: 60%;
-  margin: 0 auto 0.25rem auto;
+  margin: 0.75rem auto;
   display: flex;
+  flex-direction: column; /* stack input then dots */
 }
 .deck-input-wrapper input { /* thicker input font */
   flex: 1;
@@ -172,7 +176,7 @@
 @keyframes caretBlink { 0%,49% { opacity:1; } 50%,100% { opacity:0; } }
 @keyframes rainbowText { 0% { color:#ff6b6b; } 16% { color:#ffd93b; } 33% { color:#6bcb77; } 50% { color:#4d96ff; } 66% { color:#9d4edd; } 83% { color:#ff4081; } 100% { color:#ff6b6b; } }
 /* Deck selector */
-.deck-selector { position: absolute; top: 1rem; right: 1rem; display: inline-block; }
+.deck-selector { position: absolute; top: 1rem; right: 1rem; display: inline-block; z-index: 6; }
 .deck-selector-button {
   background: linear-gradient(135deg,#ff4081,#2196f3);
   border: none; /* removed 2px transparent border */
@@ -213,10 +217,10 @@
 }
 
 @media (max-width: 640px) {
-  .slide-inner { width: 100%; margin: 0 auto; padding: 2rem 1.25rem; height: auto; min-height: 70vh; }
+  .slide-inner { width: 100%; padding: 2rem 1.25rem; height: 100vh; min-height: 100vh; }
   .feature-list { font-size: clamp(1.2rem,4.5vw,1.4rem); line-height:1.4; gap: 0.6rem; }
-  .deck { width: 90%; }
-  .deck-input-wrapper { width: 90%; }
+  .deck { width: 100%; }
+  .deck-input-wrapper { width: 100%; }
   .deck-input-wrapper input { font-size: .95rem; }
   .deck-selector { top: .75rem; right: .75rem; }
   .deck-selector-button { width: 40px; height: 40px; font-size: 1.15rem; border: none; }

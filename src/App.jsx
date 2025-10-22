@@ -221,11 +221,6 @@ function App() {
           <span ref={mirrorRef} className="input-mirror" aria-hidden="true">{inputValue}</span>
           <span className="blink-caret" style={{ left: caretLeft }} aria-hidden="true" />
         </div>
-      </div>
-      <div className="deck">
-        <div className="slides-wrapper">
-          <Slide variant={current % 2 === 0 ? 'even' : 'odd'} animDirection={animDirection}>{slides[current].content}</Slide>
-        </div>
         <div className="dots" role="tablist" aria-label="Slide selection">
           {slides.map((s, idx) => (
             <button
@@ -238,6 +233,11 @@ function App() {
               disabled={isTyping && idx !== pendingIndex}
             />
           ))}
+        </div>
+      </div>
+      <div className="deck">
+        <div className="slides-wrapper">
+          <Slide variant={current % 2 === 0 ? 'even' : 'odd'} animDirection={animDirection}>{slides[current].content}</Slide>
         </div>
       </div>
     </>
