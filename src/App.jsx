@@ -1,33 +1,39 @@
-import { useState, useEffect, useCallback, useMemo } from 'react'
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import Slide from './components/Slide.jsx'
 import './App.css'
+import slidesDefault from './data/slides.json';
+import slidesFun from './data/slides_fun.json';
+import slidesMinimal from './data/slides_minimal.json';
 
 function App() {
-  const slides = useMemo(() => [
-    { id: 0, title: 'Welcome', content: (<>
-      <h1 className="title rainbow">Welcome 🎉</h1>
-      <p>Use arrow keys or buttons to move through the slides.</p>
-    </>) },
-    { id: 1, title: 'About', content: (<>
-      <h2 className="title">About</h2>
-      <p>This is a simple playful React presentation deck built with Vite.</p>
-    </>) },
-    { id: 2, title: 'Features', content: (<>
-      <h2 className="title">Features</h2>
-      <ul className="feature-list">
-        <li>Keyboard navigation</li>
-        <li>Smooth transitions</li>
-        <li>Minimal, fun styling</li>
-      </ul>
-    </>) },
-    { id: 3, title: 'Thanks', content: (<>
-      <h2 className="title">Thanks 🙌</h2>
-      <p>Wrap up slide. Customize content in <code>src/App.jsx</code>.</p>
-    </>) }
-  ], [])
+  // deck selection state
+  const [selectedDeck, setSelectedDeck] = useState('default');
+  const [deckOpen, setDeckOpen] = useState(false);
+  const deckSources = { default: slidesDefault, fun: slidesFun, minimal: slidesMinimal };
+  const rawDeck = deckSources[selectedDeck];
+  const slides = useMemo(() => {
+    const renderContent = (entry) => entry.content.map((block, i) => {
+      if (block.type === 'p') return <p key={i}>{block.text}</p>;
+      if (block.type === 'list') return (
+        <ul key={i} className="feature-list">
+          {block.items.map((it, j) => <li key={j}>{it}</li>)}
+        </ul>
+      );
+      return null;
+    });
+    return rawDeck.map(raw => ({
+      id: raw.id,
+      title: raw.title,
+      content: (
+        <>
+          {raw.rainbowTitle ? <h1 className="title rainbow">{raw.title}</h1> : <h2 className="title">{raw.title}</h2>}
+          {renderContent(raw)}
+        </>
+      )
+    }));
+  }, [rawDeck])
 
   const [current, setCurrent] = useState(0)
-  const [prev, setPrev] = useState(0) // retained for title history only
   const [pendingIndex, setPendingIndex] = useState(null)
   const [isTyping, setIsTyping] = useState(false)
   const [typedValue, setTypedValue] = useState(slides[0].title)
@@ -57,7 +63,6 @@ function App() {
       }, typingSpeed);
       return () => clearTimeout(t);
     } else {
-      setPrev(current);
       setCurrent(pendingIndex);
       setPendingIndex(null);
       setIsTyping(false);
@@ -82,8 +87,88 @@ function App() {
 
   const inputValue = isTyping ? typedValue : slides[current].title
 
+  const selectorRef = useRef(null);
+  const firstItemRef = useRef(null);
+
+  const toggleDeckMenu = () => setDeckOpen(o => !o);
+  const selectDeck = (key) => {
+    setSelectedDeck(key);
+    setDeckOpen(false);
+  };
+  // keyboard navigation for menu
+  const onMenuKeyDown = (e) => {
+    if (!deckOpen) return;
+    const items = selectorRef.current?.querySelectorAll('.deck-dropdown button');
+    if (!items || !items.length) return;
+    const arr = Array.from(items);
+    const currentIndex = arr.indexOf(document.activeElement);
+    if (e.key === 'Escape') {
+      setDeckOpen(false);
+      selectorRef.current.querySelector('.deck-selector-button')?.focus();
+    } else if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      const next = arr[(currentIndex + 1 + arr.length) % arr.length];
+      next.focus();
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      const prev = arr[(currentIndex - 1 + arr.length) % arr.length];
+      prev.focus();
+    } else if (e.key === 'Home') {
+      e.preventDefault();
+      arr[0].focus();
+    } else if (e.key === 'End') {
+      e.preventDefault();
+      arr[arr.length - 1].focus();
+    }
+  };
+  // outside click / escape close
+  useEffect(() => {
+    if (!deckOpen) return;
+    const handleClick = (e) => {
+      if (!selectorRef.current?.contains(e.target)) setDeckOpen(false);
+    };
+    const handleKey = (e) => { if (e.key === 'Escape') setDeckOpen(false); };
+    window.addEventListener('mousedown', handleClick);
+    window.addEventListener('keydown', handleKey);
+    return () => {
+      window.removeEventListener('mousedown', handleClick);
+      window.removeEventListener('keydown', handleKey);
+    };
+  }, [deckOpen]);
+  // focus first item when opening
+  useEffect(() => {
+    if (deckOpen) {
+      const active = selectorRef.current?.querySelector('.deck-dropdown .active') || firstItemRef.current;
+      active?.focus();
+    }
+  }, [deckOpen]);
+
+  // reset when deck changes
+  useEffect(() => {
+    setCurrent(0);
+    setPendingIndex(null);
+    setIsTyping(false);
+    setTypedValue(slides[0].title);
+  }, [selectedDeck, slides]);
+
   return (
     <>
+      <div className="deck-selector" ref={selectorRef} onKeyDown={onMenuKeyDown}>
+          <h2 onClick={toggleDeckMenu} className="title dice-emoji">🎲</h2>
+        {deckOpen && (
+          <ul className="deck-dropdown" role="menu" aria-label="Select deck">
+            <li role="none">
+              <button ref={firstItemRef} role="menuitem" onClick={() => selectDeck('default')} className={selectedDeck==='default'?'active':''}>Default</button>
+            </li>
+            <li role="none">
+              <button role="menuitem" onClick={() => selectDeck('fun')} className={selectedDeck==='fun'?'active':''}>Fun Pack</button>
+            </li>
+            <li role="none">
+              <button role="menuitem" onClick={() => selectDeck('minimal')} className={selectedDeck==='minimal'?'active':''}>Minimal</button>
+            </li>
+          </ul>
+        )}
+      </div>
       <div className="deck-input-wrapper">
         <input
           type="text"
