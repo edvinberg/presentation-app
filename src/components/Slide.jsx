@@ -1,11 +1,8 @@
 import React from 'react';
 
-function Slide({ children, index, current }) {
+function Slide({ children }) {
   return (
-    <section
-      className={"slide" + (index === current ? " active" : "")}
-      aria-hidden={index !== current}
-    >
+    <section className="slide" aria-hidden={false}>
       <div className="slide-inner">
         {children}
       </div>
@@ -14,4 +11,3 @@ function Slide({ children, index, current }) {
 }
 
 export default Slide;
-
